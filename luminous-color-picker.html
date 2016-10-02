@@ -1,0 +1,115 @@
+<!-- <link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+
+<!--Paper Elements-->
+<!-- <link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-styles/typography.html">
+<link rel="import" href="../paper-styles/color.html">
+<link rel="import" href="../paper-slider/paper-slider.html">
+<link rel="import" href="../paper-color-picker/paper-color-circle.html"> -->
+
+<!--Neon Elements-->
+
+<!-- <link rel="import" href="../neon-animation/neon-animated-pages.html">
+<link rel="import" href="../neon-animation/neon-animatable.html">
+<link rel="import" href="../neon-animation/neon-animations.html">
+<link rel="import" href="../neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../neon-animation/neon-animatable-behavior.html">
+<link rel="import" href="../neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="../neon-animation/animations/slide-right-animation.html"> --> -->
+
+
+
+<dom-module id="luminous-color-picker">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+
+      }
+      paper-color-circle {
+        width: 200px;
+        height: 200px;
+      }
+
+
+
+     .flexchild {
+        @apply(--layout-flex);
+      }
+
+
+
+     .color-button{
+        background-color: var(--paper-cyan-500);
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+          background-color: var(--paper-red-a200) !important;
+          color: white !important;
+        };
+     }
+
+    </style>
+
+      <paper-color-circle color="{{color}}"></paper-color-circle>
+      <paper-slider pin id="brightnessSlider" step="1" min="0" max="255" immediate-value={{brightness}}  value="{{initial}}" ></paper-slider>
+
+  </template>
+
+
+    <script>
+      Polymer({
+        is: 'luminous-color-picker',
+
+
+        properties: {
+
+          brightness: {
+            type: Number,
+            notify : true
+
+          },
+
+          color :{
+             type: Object,
+             notify : true
+
+          },
+
+          initial:{
+              notify : true
+          },
+
+
+        },
+
+        observers: [
+          'sendBrightness(brightness)',
+          'sendColor(testColor.*)'
+
+        ],
+
+        ready : function() {
+
+        },
+
+        sendBrightness : function (brightness){
+        },
+
+        sendColor : function (color){
+          //console.log(this.testColor);
+        }
+      });
+    </script>
+
+
+
+</dom-module>
