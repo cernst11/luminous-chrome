@@ -2,6 +2,21 @@
   "name": "luminous-chrome",
   "description": "The interface for luminous led strip controller",
   "main": "luminous-chrome.html",
+  "version" : "0.0.1",
+  "authors" :["Christian Ernst <cernst11@gmail.com>"],
+  "keywords":[
+    "web-components",
+    "polymer",
+    "responsive",
+    "ws2812",
+    "luminous-controller"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cernst11/luminous-chrome.git"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/cernst11/luminous-chrome",
   "dependencies": {
     "polymer": "^1.6.1",
     "iron-ajax": "PolymerElements/iron-ajax#^1.4.3",
@@ -22,5 +37,15 @@
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
     "web-component-tester": "^4.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
-  }
+  },
+  "ignore": [
+      ".bowerrc",
+      ".gitignore",
+      ".jshintignore",
+      ".jshintrc",
+      "bower.json",
+      "gruntfile.js",
+      "package.json",
+      "README.md"
+  ],
 }
