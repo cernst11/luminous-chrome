@@ -9,3 +9,4 @@ dist
 bower_components
 node_modules
 build
+.idea

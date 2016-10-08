@@ -392,7 +392,7 @@ The interface for luminous led strip controller
         *This prevents the changing of the view from loopig back and
         * updating the strip
         */
-        cardIntialized: {
+        cardInitialized: {
           type: Boolean,
           value: false
         },
@@ -418,18 +418,18 @@ The interface for luminous led strip controller
         this.$.colorpicker.initial = this.stripState._brightness;
         this.brightness = this.stripState._brightness;
         this.pixelData = data.detail.response.pixelData;
-        this.cardIntialized = true;
+        this.cardInitialized = true;
         this.updateColorStyles(this.pixelData[0]);
 
       },
 
       handleResponse: function(data) {
-        this.cardIntialized = false;
-        this.stripState = data.detail.response.stripState;
+        this.cardInitialized = false;
+        this.stripState = data.detail.response.stripState ;
+        this.pixelData = data.detail.response.pixelData ;
+        this.brightness = this.stripState._brightness ;
         this.pixelData = data.detail.response.pixelData;
-        this.brightness = this.stripState._brightness;
-        this.pixelData = data.detail.response.pixelData;
-        this.cardIntialized = true;
+        this.cardInitialized = true;
         this.updateColorStyles(this.pixelData[0]);
 
 
@@ -441,7 +441,7 @@ The interface for luminous led strip controller
       updateColorStyles: function(color) {
         color = parseInt(color, 16) > 0xffeeee ? 'd3d3d3' : color;
         console.log(color);
-        if (this.cardIntialized) {
+        if (this.cardInitialized) {
           this.customStyle['--power-button-color'] = '#' + color;
           this.customStyle['--paper-slider-knob-color'] = '#' + color;
           this.updateStyles();
@@ -471,6 +471,7 @@ The interface for luminous led strip controller
 
       },
 
+
       _goPrev: function() {
 
 
@@ -490,7 +491,7 @@ The interface for luminous led strip controller
       },
 
       sendBrightness: function(brightness) {
-        if (this.cardIntialized === true) {
+        if (this.cardInitialized === true) {
           this.socket.emit('changeBrightness', {
             brightness: brightness
           });
@@ -536,7 +537,7 @@ The interface for luminous led strip controller
       _formatStatus(sceneName) {
         sceneName = sceneName.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
           return str.toUpperCase();
-        })
+        });
         sceneName = sceneName.charAt(0).toUpperCase() + sceneName.slice(1);
         return sceneName;
       },

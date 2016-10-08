@@ -364,7 +364,7 @@ The interface for luminous led strip controller
 
        },
 
-       cardIntialized:{
+       cardInitialized:{
          type:Boolean,
          value:false
        },
@@ -399,7 +399,7 @@ The interface for luminous led strip controller
       updateColorStyles : function (color){
         color = parseInt(color, 16) > 0xffeeee ? 'd3d3d3':color;
         console.log(color);
-        if(this.cardIntialized){
+        if(this.cardInitialized){
           this.customStyle['--power-button-color'] = '#' + color;
           this.customStyle['--paper-slider-knob-color'] = '#' +  color;
           this.updateStyles();
@@ -451,7 +451,7 @@ The interface for luminous led strip controller
       sendBrightness:function(brightness, oldValue){
         console.log(oldValue);
 
-        if(this.cardIntialized === true){
+        if(this.cardInitialized === true){
           console.log(brightness);
             this.$.ajax.url = [this.deviceurl, 'mode', 'brightness'].join('/');
             this.$.ajax.body = {
