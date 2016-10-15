@@ -417,20 +417,18 @@ The interface for luminous led strip controller
         this.stripState = data.detail.response.stripState;
         this.$.colorpicker.initial = this.stripState._brightness;
         this.brightness = this.stripState._brightness;
-        this.pixelData = data.detail.response.pixelData;
+        //this.pixelData = data.detail.response.pixelData;
         this.cardInitialized = true;
-        this.updateColorStyles(this.pixelData[0]);
+        this.updateColorStyles(this.stripState.pixelData[0]);
 
       },
 
       handleResponse: function(data) {
         this.cardInitialized = false;
         this.stripState = data.detail.response.stripState ;
-        this.pixelData = data.detail.response.pixelData ;
         this.brightness = this.stripState._brightness ;
-        this.pixelData = data.detail.response.pixelData;
         this.cardInitialized = true;
-        this.updateColorStyles(this.pixelData[0]);
+        this.updateColorStyles(this.stripState.pixelData[0]);
 
 
       },
@@ -465,7 +463,7 @@ The interface for luminous led strip controller
        * Toggle power on off
        */
       power: function(event) {
-        this.$.ajax.url = [this.deviceurl, 'mode', 'toggle'].join('/');
+        this.$.ajax.url = [this.deviceurl, 'api', 'power', 'toggle'].join('/');
         this.$.ajax.method = 'POST';
         this.$.ajax.generateRequest();
 
@@ -500,7 +498,7 @@ The interface for luminous led strip controller
 
       sendEffect: function(properties) {
         let args = properties.target.getAttribute('data-args').split(',');
-        this.$.ajax.url = [this.deviceurl, 'mode', 'effects'].join('/');
+        this.$.ajax.url = [this.deviceurl, 'api', 'effects', args[0]].join('/');
 
 
         if (args[0] === 'rainbow') {
@@ -512,7 +510,6 @@ The interface for luminous led strip controller
 
         } else {
           this.$.ajax.body = {
-            'effect': args[0],
             'refresh': refreshRate
           };
 
@@ -524,7 +521,7 @@ The interface for luminous led strip controller
 
       sendScene: function(properties) {
         let args = properties.target.getAttribute('data-args').split(',');
-        this.$.ajax.url = [this.deviceurl, 'mode', 'scene'].join('/');
+        this.$.ajax.url = [this.deviceurl, 'api', 'scene' , 'basicscene'].join('/');
 
         this.$.ajax.body = {
           'scene': args[0]
@@ -534,12 +531,12 @@ The interface for luminous led strip controller
 
       },
 
-      _formatStatus(sceneName) {
-        sceneName = sceneName.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
+      _formatStatus(statusName) {
+        statusName = statusName.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
           return str.toUpperCase();
         });
-        sceneName = sceneName.charAt(0).toUpperCase() + sceneName.slice(1);
-        return sceneName;
+        statusName = statusName.charAt(0).toUpperCase() + statusName.slice(1);
+        return statusName;
       },
 
       _goToIndex: function(index, event) {
@@ -586,7 +583,7 @@ The interface for luminous led strip controller
       },
 
       _computeUrl(url){
-        return [url , 'mode', 'state'].join('/');
+        return [url , 'api', 'state' , 'all'].join('/');
       }
 
 
