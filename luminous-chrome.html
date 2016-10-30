@@ -208,7 +208,7 @@ The interface for luminous led strip controller
                 </div>
               </neon-animatable>
 
-              <neon-animatable data-page="rainbow-settings" id=rainbow-container>
+              <neon-animatable data-page="rainbow-settings"  id=rainbow-container class="expand-container">
                 <div class="flexchild">
                   <paper-button class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised id="rainbow">Rainbow</paper-button>
                   <p>Refresh Rate</p>
@@ -268,7 +268,7 @@ The interface for luminous led strip controller
     <iron-ajax id="get-info" auto url="{{_computeUrl(deviceurl)}}" headers: '{"content-type": "application/x-www-form-urlencoded"}' content-type="application/x-www-form-urlencoded" handle-as="json" on-response="handleInitialResponse" debounce-duration="1000">
     </iron-ajax>
 
-    <iron-ajax id="ajax" url="http://192.168.1.217:3000/mode/state" headers: '{"content-type": "application/x-www-form-urlencoded"}' content-type="application/x-www-form-urlencoded" handle-as="json" on-response="handleResponse" debounce-duration="1000"></iron-ajax>
+    <iron-ajax id="ajax" url="{{deviceurl}}" headers: '{"content-type": "application/x-www-form-urlencoded"}' content-type="application/x-www-form-urlencoded" handle-as="json" on-response="handleResponse" debounce-duration="1000"></iron-ajax>
 
 
   </template>
@@ -417,12 +417,14 @@ The interface for luminous led strip controller
         this.stripState = data.detail.response.stripState;
         this.$.colorpicker.initial = this.stripState._brightness;
         this.brightness = this.stripState._brightness;
-        //this.pixelData = data.detail.response.pixelData;
         this.cardInitialized = true;
         this.updateColorStyles(this.stripState.pixelData[0]);
 
       },
 
+      /**
+       * Handel response from scees and effects
+       * */
       handleResponse: function(data) {
         this.cardInitialized = false;
         this.stripState = data.detail.response.stripState ;
@@ -500,7 +502,7 @@ The interface for luminous led strip controller
         let args = properties.target.getAttribute('data-args').split(',');
         this.$.ajax.url = [this.deviceurl, 'api', 'effects', args[0]].join('/');
 
-
+        console.log(this.$.ajax.url );
         if (args[0] === 'rainbow') {
           this.$.ajax.body = {
             'effect': 'rainbow',
@@ -510,7 +512,7 @@ The interface for luminous led strip controller
 
         } else {
           this.$.ajax.body = {
-            'refresh': refreshRate
+            'refresh': this.refreshRate
           };
 
         }
