@@ -533,7 +533,7 @@ The interface for luminous led strip controller
 
       },
 
-      _formatStatus() : function(statusName) {
+      _formatStatus : function(statusName) {
         statusName = statusName.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
           return str.toUpperCase();
         });
