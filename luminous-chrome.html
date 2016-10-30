@@ -160,7 +160,7 @@ The interface for luminous led strip controller
             <div class="power-button" on-tap="_toggle">
               <paper-button id="power-button" class="power-icon" on-tap="power">
                 <span>
-                   <iron-icon class="power-icon" icon="power-settings-new"> </iron-icon>
+                  <iron-icon class="power-icon" icon="power-settings-new"> </iron-icon>
                  </span>
               </paper-button>
             </div>
@@ -481,7 +481,7 @@ The interface for luminous led strip controller
       },
 
       sendColor: function(color) {
-        let hexValue = this.rgbToHex(this.color.red, this.color.green, this.color.blue);
+        var hexValue = this.rgbToHex(this.color.red, this.color.green, this.color.blue);
         if (hexValue.length === 6) {
           this.socket.emit('changeColor', {
             color: '0x' + hexValue
@@ -499,7 +499,7 @@ The interface for luminous led strip controller
       },
 
       sendEffect: function(properties) {
-        let args = properties.target.getAttribute('data-args').split(',');
+        var args = properties.target.getAttribute('data-args').split(',');
         this.$.ajax.url = [this.deviceurl, 'api', 'effects', args[0]].join('/');
 
         console.log(this.$.ajax.url );
@@ -522,7 +522,7 @@ The interface for luminous led strip controller
       },
 
       sendScene: function(properties) {
-        let args = properties.target.getAttribute('data-args').split(',');
+        var args = properties.target.getAttribute('data-args').split(',');
         this.$.ajax.url = [this.deviceurl, 'api', 'scene' , 'basicscene'].join('/');
 
         this.$.ajax.body = {
@@ -533,7 +533,7 @@ The interface for luminous led strip controller
 
       },
 
-      _formatStatus(statusName) {
+      _formatStatus() : function(statusName) {
         statusName = statusName.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
           return str.toUpperCase();
         });
@@ -543,7 +543,7 @@ The interface for luminous led strip controller
 
       _goToIndex: function(index, event) {
 
-        let args = index.target.getAttribute('data-args').split(',');
+        var args = index.target.getAttribute('data-args').split(',');
         this.entryAnimation = 'slide-from-right-animation';
         this.exitAnimation = 'fade-out-animation';
         this.selected = args[0];
@@ -552,8 +552,8 @@ The interface for luminous led strip controller
 
       _pntrDown: function(index) {
 
-        let args = index.target.getAttribute('data-args').split(',');
-        let that = this;
+        var args = index.target.getAttribute('data-args').split(',');
+        var that = this;
         timer = setTimeout(function() {
           console.log('help');
           that.selected = 'rainbow-settings';
@@ -567,7 +567,7 @@ The interface for luminous led strip controller
 
       componentToHex: function(colorValue) {
         if (colorValue !== undefined) {
-          let hex = colorValue.toString(16);
+          var hex = colorValue.toString(16);
           hex = hex.length == 1 ? "0" + hex : hex;
           return hex;
         }
@@ -584,7 +584,7 @@ The interface for luminous led strip controller
         return brightness;
       },
 
-      _computeUrl(url){
+      _computeUrl : function(url){
         return [url , 'api', 'state' , 'all'].join('/');
       }
 
