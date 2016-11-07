@@ -1,10 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
-
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-
 <!--Paper Elements-->
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="../paper-button/paper-button.html">
@@ -13,9 +11,9 @@
 <link rel="import" href="../paper-styles/color.html">
 <link rel="import" href="../paper-slider/paper-slider.html">
 <link rel="import" href="../paper-color-picker/paper-color-circle.html">
-
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 <!--Neon Elements-->
-
 <link rel="import" href="../neon-animation/neon-animated-pages.html">
 <link rel="import" href="../neon-animation/neon-animatable.html">
 <link rel="import" href="../neon-animation/neon-animations.html">
@@ -24,98 +22,102 @@
 <link rel="import" href="../neon-animation/neon-animatable-behavior.html">
 <link rel="import" href="../neon-animation/animations/slide-from-right-animation.html">
 <link rel="import" href="../neon-animation/animations/slide-right-animation.html">
-
 <link rel="import" href="luminous-color-picker.html">
-
 <script src="lib/socket.io.js"></script>
-
 <!--
 `luminous-chrome`
 The interface for luminous led strip controller
 
 @demo demo/index.html
 -->
-
 <dom-module id="luminous-chrome">
   <template>
     <style>
-      :host {
+       :host {
         display: block;
         box-sizing: border-box;
         --power-button-color: black;
       }
-
+      
       paper-card.cardContainer {
         @apply(--layout-horizontal);
       }
-
+      
       .cardContainer-content {
         @apply(--layout-flex);
         float: left;
       }
-
+      
       .cardContainer-header {
         @apply(--paper-font-headline);
       }
-
+      
       .cardContainer-status {
         color: var(--paper-grey-600);
         margin: 10px 0;
       }
-
+      
       .power-button {
         float: right;
       }
-
+      
       paper-icon-button.cardContainer-icon {
         --iron-icon-fill-color: black;
         --iron-icon-stroke-color: var(--paper-grey-600);
       }
-
+      
       paper-color-circle {
         width: 200px;
         height: 200px;
       }
-
+      
       .power-icon {
         fill: var(--power-button-color);
         --iron-icon-height: 32px;
         --iron-icon-width: 32px;
         --paper-button-ink-color: var(--power-button-color);
       }
-
+      
       .expand-container {
         @apply(--layout-horizontal);
         text-align: center;
         margin-top: 60px;
       }
-
+      
       .expand-container-color {}
-
+      
       .card-actions {
         overflow: hidden;
-        apply(--layout-flex);
+        @apply(--layout-flex);
         min-height: 300px;
       }
-
+      
       #rainbow-container {
         margin-top: 40px
       }
-
+      
       .flexchild {
         @apply(--layout-flex);
       }
-
+      
       #brightnessSlider {
         width: 100%;
       }
+      
+      .prevent-select {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
 
+      }
+      
       paper-slider {}
-
+      
       neon-animated {}
-
+      
       neon-animatable {}
-
+      
       .color-button {
         background-color: var(--paper-cyan-500);
         color: white;
@@ -123,9 +125,8 @@ The interface for luminous led strip controller
           background-color: var(--paper-red-a200) !important;
           color: white !important;
         }
-        ;
       }
-
+      
       .scene-button {
         background-color: var(--paper-orange-500);
         color: white;
@@ -133,9 +134,8 @@ The interface for luminous led strip controller
           background-color: var(--paper-red-a200) !important;
           color: white !important;
         }
-        ;
       }
-
+      
       .effects-button {
         background-color: var(--paper-light-green-500);
         color: white;
@@ -143,20 +143,18 @@ The interface for luminous led strip controller
           background-color: var(--paper-red-a200) !important;
           color: white !important;
         }
-        ;
       }
-
+      
       .rainbow {
         background-image: repeating-linear-gradient(to bottom right, rgb(0, 165, 223) 0%, rgb(62, 20, 123) 20%, rgb(226, 0, 121) 40%, rgb(223, 19, 44) 60%, rgb(243, 239, 21) 80%, rgb(0, 152, 71) 100%);
         color: white;
       }
+
     </style>
-
-
-    <paper-card elevation="1" class="cardContainer">
+    <paper-card elevation="1" class="cardContainer prevent-select" hidden$="{{showDevice}}">
       <div class="cardContainer-content">
-        <div class="card-content" on-tap="_toggle">
-          <div class="cardContainer-header" on-tap="_toggle">{{stripState._location}}
+        <div class="card-content prevent-select" on-tap="_toggle">
+          <div class="cardContainer-header prevent-select" on-tap="_toggle">{{stripState._location}}
             <div class="power-button" on-tap="_toggle">
               <paper-button id="power-button" class="power-icon" on-tap="power">
                 <span>
@@ -164,29 +162,23 @@ The interface for luminous led strip controller
                  </span>
               </paper-button>
             </div>
-
           </div>
-
           <div class="cardContainer-status">Status: [[_formatStatus(stripState._mode.modeType)]]<span> - [[_computeBrightnessPercentage(brightness)]]%</span></div>
-
         </div>
-
         <iron-collapse id="collapse" style="width:100%;">
           <div class="card-actions">
-
             <!-- <paper-button id="selection-button" class="paper-font-body1" on-tap="_goNext" raised id="gobtn">Analyze</paper-button> -->
-
-            <neon-animated-pages id="pages" class="fit" selected="{{selected}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]" attr-for-selected="data-page">
+            <neon-animated-pages id="pages" class="fit" selected="{{selected}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]"
+              attr-for-selected="data-page">
               <!-- <neon-animated-pages id="pages" class="fit" selected="{{selected}}"  attr-for-selected="data-page"> -->
-
               <neon-animatable data-page="modeselection" id="modeselection" class="expand-container">
                 <div id="start-container" class="flexchild">
                   <paper-button id="color-selection-button" class="paper-font-body1 color-button" on-tap="_goToIndex" data-args="color" raised>Color</paper-button>
                   <paper-button id="scene-selection-button" class="paper-font-body1 scene-button" on-tap="_goToIndex" data-args="scenes" raised>Scenes</paper-button>
-                  <paper-button id="effects-selection-button" class="paper-font-body1 effects-button" on-tap="_goToIndex" data-args="effects" raised>Effects</paper-button>
+                  <paper-button id="effects-selection-button" class="paper-font-body1 effects-button" on-tap="_goToIndex" data-args="effects"
+                    raised>Effects</paper-button>
                 </div>
               </neon-animatable>
-
               <neon-animatable data-page="color" class="expand-container">
                 <!-- <div class="flexchild">
                     <div>Choose A Color</div>
@@ -198,38 +190,32 @@ The interface for luminous led strip controller
                   <luminous-color-picker id="colorpicker" color="{{color}}" brightness="{{brightness}}" initial="0"> </luminous-color-picker>
                 </div>
               </neon-animatable>
-
               <!--Effects  -->
               <neon-animatable data-page="effects" class="expand-container">
                 <div class="flexchild">
-                  <paper-button id="rainbow-selection-button" on-down="_pntrDown" on-up="clearEventTimeout" class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised>Rainbow</paper-button>
+                  <paper-button id="rainbow-selection-button" on-down="_pntrDown" on-up="clearEventTimeout" class="paper-font-body1 rainbow"
+                    on-tap="sendEffect" data-args="rainbow" raised>Rainbow</paper-button>
                   <paper-button id="rotate-selection-button" class="paper-font-body1" on-tap="_goToIndex" data-args="rotate" raised>Rotate</paper-button>
                   <paper-button id="chase-selection-button" class="paper-font-body1" on-tap="_goToIndex" data-args="theaterChase" raised>Theater Chase</paper-button>
                 </div>
               </neon-animatable>
-
-              <neon-animatable data-page="rainbow-settings"  id=rainbow-container class="expand-container">
+              <neon-animatable data-page="rainbow-settings" id=rainbow-container class="expand-container">
                 <div class="flexchild">
                   <paper-button class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised id="rainbow">Rainbow</paper-button>
                   <p>Refresh Rate</p>
                   <paper-slider max-markers="20" step="5" max="100" value="{{rainbow.properties.refresh}}"></paper-slider>
                 </div>
               </neon-animatable>
-
-
               <neon-animatable data-page="rotate" class="expand-container">
                 <div class="flexchild">
                   <paper-button class="paper-font-body1" on-tap="sendEffect" data-args="rotate" raised id="rotate">Rotate</paper-button>
                 </div>
               </neon-animatable>
-
               <neon-animatable data-page="theaterChase" class="expand-container">
                 <div class="flexchild">
                   <paper-button class="paper-font-body1" on-tap="sendEffect" data-args="theaterChase" raised id="theaterChase">Theater Chase</paper-button>
                 </div>
               </neon-animatable>
-
-
               <!--Scenes  -->
               <neon-animatable data-page="scenes" class="expand-container">
                 <div class="flexchild">
@@ -237,42 +223,30 @@ The interface for luminous led strip controller
                   <paper-button class="paper-font-body1" on-tap="_goToIndex" data-args="relaxScene" raised id="select-relax">Relaxng Scene</paper-button>
                 </div>
               </neon-animatable>
-
               <neon-animatable data-page="intenseScene" class="expand-container">
                 <div class="flexchild">
                   <paper-button class="paper-font-body1" on-tap="sendScene" data-args="intense" raised id="intense">Intense</paper-button>
                 </div>
               </neon-animatable>
-
               <neon-animatable data-page="relaxScene" class="expand-container">
                 <div class="flexchild">
                   <paper-button class="paper-font-body1" on-tap="sendScene" data-args="relaxing" raised id="relaxing">Relaxing</paper-button>
                 </div>
               </neon-animatable>
-
             </neon-animated-pages>
-
-
           </div>
-
         </iron-collapse>
       </div>
     </paper-card>
-
-
-
     <script>
 
     </script>
-
-    <iron-ajax id="get-info" auto url="{{_computeUrl(deviceurl)}}" headers: '{"content-type": "application/x-www-form-urlencoded"}' content-type="application/x-www-form-urlencoded" handle-as="json" on-response="handleInitialResponse" debounce-duration="1000">
+    <iron-ajax id="get-info" auto url="{{_computeUrl(deviceurl)}}" headers:
+      '{"content-type": "application/x-www-form-urlencoded"}' content-type="application/x-www-form-urlencoded" handle-as="json" on-response="handleInitialResponse" debounce-duration="1000">
     </iron-ajax>
-
-    <iron-ajax id="ajax" url="{{deviceurl}}" headers: '{"content-type": "application/x-www-form-urlencoded"}' content-type="application/x-www-form-urlencoded" handle-as="json" on-response="handleResponse" debounce-duration="1000"></iron-ajax>
-
-
+    <iron-ajax id="ajax" url="{{deviceurl}}" headers: '{"content-type": "application/x-www-form-urlencoded"}' content-type="application/x-www-form-urlencoded"
+      handle-as="json" on-response="handleResponse" debounce-duration="1000"></iron-ajax>
   </template>
-
   <script>
     Polymer({
       is: 'luminous-chrome',
@@ -397,7 +371,12 @@ The interface for luminous led strip controller
           value: false
         },
 
-        socket :{}
+        socket :{}, 
+
+        showDevice :{
+           type: Boolean,
+           value: true 
+        }
 
 
       },
@@ -407,7 +386,7 @@ The interface for luminous led strip controller
       ],
 
       ready : function(){
-        this.socket = io.connect(this.deviceurl)
+       
       },
 
       /**
@@ -419,6 +398,9 @@ The interface for luminous led strip controller
         this.brightness = this.stripState._brightness;
         this.cardInitialized = true;
         this.updateColorStyles(this.stripState.pixelData[0]);
+        this.showDevice = !this.showDevice
+        this.socket = io.connect(this.deviceurl);
+
 
       },
 
