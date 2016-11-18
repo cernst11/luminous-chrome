@@ -81,7 +81,7 @@ The interface for luminous led strip controller
       .expand-container {
         @apply(--layout-horizontal);
         text-align: center;
-        margin-top: 60px;
+        margin-top: 40px;
       }
       
       .expand-container-color {}
@@ -150,6 +150,15 @@ The interface for luminous led strip controller
         color: white;
       }
 
+      #back-button{
+        position: absolute; 
+        top: 0; left: 0;
+         width: 100px; 
+         text-align:left;
+         height:32px;
+
+      }
+
     </style>
     <paper-card elevation="1" class="cardContainer prevent-select" hidden$="{{showDevice}}">
       <div class="cardContainer-content">
@@ -167,6 +176,9 @@ The interface for luminous led strip controller
         </div>
         <iron-collapse id="collapse" style="width:100%;">
           <div class="card-actions">
+            <div id="back-button"  >
+                <iron-icon hidden$="{{hideBackArrow}}" on-tap="_goPrev" class="power-icon" icon="chevron-left"> </iron-icon>
+            </div>
             <!-- <paper-button id="selection-button" class="paper-font-body1" on-tap="_goNext" raised id="gobtn">Analyze</paper-button> -->
             <neon-animated-pages id="pages" class="fit" selected="{{selected}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]"
               attr-for-selected="data-page">
@@ -175,8 +187,7 @@ The interface for luminous led strip controller
                 <div id="start-container" class="flexchild">
                   <paper-button id="color-selection-button" class="paper-font-body1 color-button" on-tap="_goToIndex" data-args="color" raised>Color</paper-button>
                   <paper-button id="scene-selection-button" class="paper-font-body1 scene-button" on-tap="_goToIndex" data-args="scenes" raised>Scenes</paper-button>
-                  <paper-button id="effects-selection-button" class="paper-font-body1 effects-button" on-tap="_goToIndex" data-args="effects"
-                    raised>Effects</paper-button>
+                  <paper-button id="effects-selection-button" class="paper-font-body1 effects-button" on-tap="_goToIndex" data-args="effects" raised>Effects</paper-button>
                 </div>
               </neon-animatable>
               <neon-animatable data-page="color" class="expand-container">
@@ -187,7 +198,7 @@ The interface for luminous led strip controller
 
                   </div> -->
                 <div class="flexchild">
-                  <luminous-color-picker id="colorpicker" color="{{color}}" brightness="{{brightness}}" initial="0"> </luminous-color-picker>
+                  <luminous-color-picker id="colorpicker" color="{{color}}" brightness="{{brightness}}" disabled$="{{brightness}}" initial="0"> </luminous-color-picker>
                 </div>
               </neon-animatable>
               <!--Effects  -->
@@ -376,6 +387,17 @@ The interface for luminous led strip controller
         showDevice :{
            type: Boolean,
            value: true 
+        }, 
+
+        previousPage:{
+          type: Array,
+          value:[]
+        
+        },
+
+        hideBackArrow:{
+          type: Boolean,
+          value : true
         }
 
 
@@ -405,8 +427,8 @@ The interface for luminous led strip controller
       },
 
       /**
-       * Handel response from scees and effects
-       * */
+       * Handle response from scees and effects
+       **/
       handleResponse: function(data) {
         this.cardInitialized = false;
         this.stripState = data.detail.response.stripState ;
@@ -437,9 +459,10 @@ The interface for luminous led strip controller
       _toggle: function(e) {
         if (e.target == e.currentTarget) {
           this.$.collapse.toggle();
+          this.selected = 'modeselection';
         }
 
-        this.selected = 'modeselection';
+
 
       },
 
@@ -453,15 +476,37 @@ The interface for luminous led strip controller
 
       },
 
-
+      /**
+       * Go to the previous page
+       */
       _goPrev: function() {
-
-
+        this.selected = this.previousPage[this.previousPage.length-1];
+        this.previousPage.pop();
+        this.hideBackArrow = this.previousPage.length === 0;
+        
       },
+
       _goNext: function() {
         this.$.pages.selectNext();
       },
 
+      /**
+       * Go to specific page
+       */
+     _goToIndex: function(index, event) {
+        this.previousPage.push(this.selected);
+
+        let args = index.target.getAttribute('data-args').split(',');
+        this.entryAnimation = 'slide-from-right-animation';
+        this.exitAnimation = 'fade-out-animation';
+        this.selected = args[0];
+        this.hideBackArrow = (this.selected === 'modeselction');
+
+      },
+
+      /**
+      * Send a color in format 0x000000
+      */
       sendColor: function(color) {
         var hexValue = this.rgbToHex(this.color.red, this.color.green, this.color.blue);
         if (hexValue.length === 6) {
@@ -472,6 +517,9 @@ The interface for luminous led strip controller
         }
       },
 
+      /**
+      * Send a brightness value
+      */
       sendBrightness: function(brightness) {
         if (this.cardInitialized === true) {
           this.socket.emit('changeBrightness', {
@@ -480,6 +528,9 @@ The interface for luminous led strip controller
         }
       },
 
+      /**
+      * Send an effect
+      */
       sendEffect: function(properties) {
         var args = properties.target.getAttribute('data-args').split(',');
         this.$.ajax.url = [this.deviceurl, 'api', 'effects', args[0]].join('/');
@@ -503,6 +554,10 @@ The interface for luminous led strip controller
 
       },
 
+      
+      /**
+      * Send an scene
+      */
       sendScene: function(properties) {
         var args = properties.target.getAttribute('data-args').split(',');
         this.$.ajax.url = [this.deviceurl, 'api', 'scene' , 'basicscene'].join('/');
@@ -523,21 +578,11 @@ The interface for luminous led strip controller
         return statusName;
       },
 
-      _goToIndex: function(index, event) {
-
-        var args = index.target.getAttribute('data-args').split(',');
-        this.entryAnimation = 'slide-from-right-animation';
-        this.exitAnimation = 'fade-out-animation';
-        this.selected = args[0];
-
-      },
-
       _pntrDown: function(index) {
 
         var args = index.target.getAttribute('data-args').split(',');
         var that = this;
         timer = setTimeout(function() {
-          console.log('help');
           that.selected = 'rainbow-settings';
         }, 1000);
 
@@ -547,6 +592,7 @@ The interface for luminous led strip controller
         clearTimeout(timer);
       },
 
+
       componentToHex: function(colorValue) {
         if (colorValue !== undefined) {
           var hex = colorValue.toString(16);
@@ -555,20 +601,30 @@ The interface for luminous led strip controller
         }
       },
 
+      /**
+      * Convert RGB to HEX value
+      */
       rgbToHex: function(r, g, b) {
-        //return r;
         return this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
       },
 
+      /**
+      *Calcualate the brightness percentage value
+      */
       _computeBrightnessPercentage: function(brightness) {
 
         brightness = Math.floor((brightness / 255) * 100);
         return brightness;
       },
 
+      /**
+      *Calculate the url path 
+      */
       _computeUrl : function(url){
         return [url , 'api', 'state' , 'all'].join('/');
-      }
+      },
+
+
 
 
     });
