@@ -2,7 +2,7 @@
   "name": "luminous-chrome",
   "description": "The interface for luminous led strip controller",
   "main": "luminous-chrome.html",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "authors": [
     "Christian Ernst <cernst11@gmail.com>"
   ],
