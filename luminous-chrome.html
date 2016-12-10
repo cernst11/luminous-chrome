@@ -3,6 +3,8 @@
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 <!--Paper Elements-->
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="../paper-button/paper-button.html">
@@ -11,8 +13,9 @@
 <link rel="import" href="../paper-styles/color.html">
 <link rel="import" href="../paper-slider/paper-slider.html">
 <link rel="import" href="../paper-color-picker/paper-color-circle.html">
-<link rel="import" href="../iron-icons/iron-icons.html">
-<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../paper-spinner/paper-spinner.html">
+<link rel="import" href="../paper-spinner/paper-spinner-lite.html">
+
 <!--Neon Elements-->
 <link rel="import" href="../neon-animation/neon-animated-pages.html">
 <link rel="import" href="../neon-animation/neon-animatable.html">
@@ -23,7 +26,7 @@
 <link rel="import" href="../neon-animation/animations/slide-from-right-animation.html">
 <link rel="import" href="../neon-animation/animations/slide-right-animation.html">
 <link rel="import" href="luminous-color-picker.html">
-<script src="lib/socket.io.js"></script>
+<!--<script src="lib/socket.io.js"></script>-->
 <!--
 `luminous-chrome`
 The interface for luminous led strip controller
@@ -37,7 +40,10 @@ The interface for luminous led strip controller
         display: block;
         box-sizing: border-box;
         --power-button-color: black;
+
+        
       }
+
       
       paper-card.cardContainer {
         @apply(--layout-horizontal);
@@ -160,8 +166,8 @@ The interface for luminous led strip controller
       }
 
     </style>
-    <paper-card elevation="1" class="cardContainer prevent-select" hidden$="{{showDevice}}">
-      <div class="cardContainer-content">
+    <paper-card elevation="1" class="cardContainer prevent-select" hidden$="{{hideDevice}}">
+      <div class="cardContainer-content" >
         <div class="card-content prevent-select" on-tap="_toggle">
           <div class="cardContainer-header prevent-select" on-tap="_toggle">{{stripState._location}}
             <div class="power-button" on-tap="_toggle">
@@ -172,7 +178,7 @@ The interface for luminous led strip controller
               </paper-button>
             </div>
           </div>
-          <div class="cardContainer-status">Status: [[_formatStatus(stripState._mode.modeType)]]<span> - [[_computeBrightnessPercentage(brightness)]]%</span></div>
+          <div class="cardContainer-status">Status: [[_formatStatus(stripState._mode.modeType)]]<span> - [[_computeBrightnessPercentage(stripState._brightness)]]%</span></div>
         </div>
         <iron-collapse id="collapse" style="width:100%;">
           <div class="card-actions">
@@ -191,14 +197,8 @@ The interface for luminous led strip controller
                 </div>
               </neon-animatable>
               <neon-animatable data-page="color" class="expand-container">
-                <!-- <div class="flexchild">
-                    <div>Choose A Color</div>
-                    <paper-color-circle color={{color}}></paper-color-circle>
-                    <paper-slider pin id="brightnessSlider" step="1" min="0" max="255" immediate-value="{{brightness}}" ></paper-slider>
-
-                  </div> -->
                 <div class="flexchild">
-                  <luminous-color-picker id="colorpicker" color="{{color}}" brightness="{{brightness}}" disabled$="{{brightness}}" initial="0"> </luminous-color-picker>
+                  <luminous-color-picker id="colorpicker" color="{{color}}" brightness="{{stripState._brightness}}" disabled$="{{stripState._brightness}}" initial="0"> </luminous-color-picker>
                 </div>
               </neon-animatable>
               <!--Effects  -->
@@ -298,6 +298,7 @@ The interface for luminous led strip controller
           }
         },
 
+
         /**
          *The device url and port number
          **/
@@ -374,7 +375,7 @@ The interface for luminous led strip controller
 
         /*
         *Is the card view Intialized
-        *This prevents the changing of the view from loopig back and
+        *This prevents the changing of the view from looping back and
         * updating the strip
         */
         cardInitialized: {
@@ -382,11 +383,11 @@ The interface for luminous led strip controller
           value: false
         },
 
-        socket :{}, 
 
-        showDevice :{
+
+        hideDevice :{
            type: Boolean,
-           value: true 
+           value: false
         }, 
 
         previousPage:{
@@ -404,7 +405,7 @@ The interface for luminous led strip controller
       },
       observers: [
         'sendColor(color.*)',
-        'sendBrightness(brightness)'
+        'sendBrightness(stripState._brightness)'
       ],
 
       ready : function(){
@@ -416,12 +417,11 @@ The interface for luminous led strip controller
        * */
       handleInitialResponse: function(data) {
         this.stripState = data.detail.response.stripState;
-        this.$.colorpicker.initial = this.stripState._brightness;
-        this.brightness = this.stripState._brightness;
         this.cardInitialized = true;
         this.updateColorStyles(this.stripState.pixelData[0]);
-        this.showDevice = !this.showDevice
-        this.socket = io.connect(this.deviceurl);
+        this.hideDevice = false;
+        //this.$.load.active = false;
+        // this.socket = io.connect(this.deviceurl);
 
 
       },
@@ -432,11 +432,8 @@ The interface for luminous led strip controller
       handleResponse: function(data) {
         this.cardInitialized = false;
         this.stripState = data.detail.response.stripState ;
-        this.brightness = this.stripState._brightness ;
         this.cardInitialized = true;
         this.updateColorStyles(this.stripState.pixelData[0]);
-
-
       },
 
       /**
@@ -444,7 +441,6 @@ The interface for luminous led strip controller
        **/
       updateColorStyles: function(color) {
         color = parseInt(color, 16) > 0xffeeee ? 'd3d3d3' : color;
-        console.log(color);
         if (this.cardInitialized) {
           this.customStyle['--power-button-color'] = '#' + color;
           this.customStyle['--paper-slider-knob-color'] = '#' + color;
@@ -461,9 +457,6 @@ The interface for luminous led strip controller
           this.$.collapse.toggle();
           this.selected = 'modeselection';
         }
-
-
-
       },
 
       /**
@@ -510,9 +503,10 @@ The interface for luminous led strip controller
       sendColor: function(color) {
         var hexValue = this.rgbToHex(this.color.red, this.color.green, this.color.blue);
         if (hexValue.length === 6) {
-          this.socket.emit('changeColor', {
-            color: '0x' + hexValue
-          });
+          this.$.ajax.url = [this.deviceurl, 'api', 'color'].join('/');
+          this.$.ajax.body = { 'color' : '0x' + hexValue};
+          this.$.ajax.method = 'POST';
+          this.$.ajax.generateRequest();
           this.updateColorStyles(hexValue);
         }
       },
@@ -522,9 +516,10 @@ The interface for luminous led strip controller
       */
       sendBrightness: function(brightness) {
         if (this.cardInitialized === true) {
-          this.socket.emit('changeBrightness', {
-            brightness: brightness
-          });
+           this.$.ajax.url = [this.deviceurl, 'api', 'brightness'].join('/');
+                this.$.ajax.body = { 'brightness' : brightness};
+                this.$.ajax.method = 'POST';
+                this.$.ajax.generateRequest();
         }
       },
 
@@ -623,9 +618,6 @@ The interface for luminous led strip controller
       _computeUrl : function(url){
         return [url , 'api', 'state' , 'all'].join('/');
       },
-
-
-
 
     });
   </script>
