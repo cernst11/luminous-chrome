@@ -1,0 +1,133 @@
+<dom-module id="luminous-rotate">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+
+      }
+      paper-color-circle {
+        width: 200px;
+        height: 200px;
+      }
+
+     .flexchild {
+        @apply(--layout-flex);
+      }
+
+
+     .color-button{
+        background-color: var(--paper-cyan-500);
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+          background-color: var(--paper-red-a200) !important;
+          color: white !important;
+        };
+     }
+
+      #rotate-selection-button{
+        background-color: #651FFF;
+        color : white;
+        width:80px;
+    }     
+
+    </style>
+
+      
+      <paper-button id="rotate-selection-button" class="paper-font-body1"
+                  on-tap="sendEffect" data-args="rotate" raised>Rotate</paper-button>
+
+
+      <iron-ajax id="ajax"   
+          url="{{_computeEffectUrl(deviceurl, effectName)}}" 
+          headers:'{"content-type": "application/x-www-form-urlencoded"}' 
+          content-type="application/x-www-form-urlencoded" 
+          handle-as="json" 
+          on-response="handleEffectResponse"
+          debounce-duration="1000">
+      </iron-ajax>
+
+  </template>
+
+
+    <script>
+      Polymer({
+        is: 'luminous-rotate',
+
+
+        properties: {
+
+          effectProperties: {
+            type: Object,
+            notify : true, 
+            value:{
+                refresh: 20, 
+                fillColor : 0x00FF00,
+                color : 0xFF00FF, 
+                lit : 30
+            }
+          },
+
+
+          effectName: {
+            type: String,
+            readOnly: true,
+            value : 'rotate'
+          }, 
+          
+          /**
+          *The state of the light strip
+          **/
+          stripState:{
+              type: Object,
+              notify : true
+          },
+
+
+          /**
+          *The device url and port number
+          **/
+          deviceurl: {
+            type: String
+          }
+          
+
+        },
+
+        observers: [
+
+
+        ],
+
+        ready : function() {
+          
+
+        },
+
+        sendBrightness : function (brightness){
+        },
+
+        _computeEffectUrl : function (url, effectName){
+
+            return [url , 'api', 'effects' , effectName].join('/');
+        }, 
+
+        handleEffectResponse : function (data){
+            //this.cardInitialized = true;
+            this.stripState = data.detail.response.stripState ;
+
+        }, 
+
+        sendEffect : function(){
+            this.$.ajax.body = this.effectProperties;
+            this.$.ajax.method = 'POST';
+            this.$.ajax.generateRequest();
+
+        }
+
+      });
+    </script>
+
+
+
+</dom-module>

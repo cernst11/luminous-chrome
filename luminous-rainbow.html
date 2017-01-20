@@ -1,0 +1,132 @@
+<dom-module id="luminous-rainbow">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+
+      }
+      paper-color-circle {
+        width: 200px;
+        height: 200px;
+      }
+
+
+
+     .flexchild {
+        @apply(--layout-flex);
+      }
+
+
+
+     .color-button{
+        background-color: var(--paper-cyan-500);
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+          background-color: var(--paper-red-a200) !important;
+          color: white !important;
+        };
+     }
+
+    </style>
+
+      
+         <paper-button id="rainbow-selection-button" class="paper-font-body1 rainbow"
+                    on-tap="sendEffect" data-args="rainbow" raised>Rainbow</paper-button>
+
+
+        <iron-ajax id="ajax"   url="{{_computeEffectUrl(deviceurl, effectName)}}" 
+            headers:'{"content-type": "application/x-www-form-urlencoded"}' 
+            content-type="application/x-www-form-urlencoded" 
+            handle-as="json" 
+
+            on-response="handleEffectResponse"
+            debounce-duration="1000">
+        </iron-ajax>
+      
+      <!--<paper-slider pin id="brightnessSlider" step="1" min="0" max="255" immediate-value={{brightness}}  value="{{initial}}" ></paper-slider>-->
+
+  </template>
+
+
+    <script>
+      Polymer({
+        is: 'luminous-rainbow',
+
+
+        properties: {
+
+        effectProperties: {
+            type: Object,
+            notify : true, 
+                value:{
+                    refreshrate: 20
+                }
+            
+        },
+
+
+        effectName: {
+            type: String,
+            readOnly: true,
+            value : 'rainbow'
+        }, 
+
+        stripState:{
+            type: Object
+        }, 
+
+
+        /**
+         *The device url and port number
+         **/
+        deviceurl: {
+          type: String
+        },
+          
+
+        },
+
+        observers: [
+          'sendBrightness(brightness)'
+
+
+        ],
+
+        ready : function() {
+
+        },
+
+        sendBrightness : function (brightness){
+        },
+
+        _computeEffectUrl : function (url, effectName){
+
+            return [url , 'api', 'effects' , effectName].join('/');
+        }, 
+
+        handleEffectResponse : function (data){
+            this.cardInitialized = true;
+            this.stripState = data.detail.response.stripState ;
+
+            //this.updateColorStyles(this.stripState.pixelData[0]);
+
+        }, 
+
+        sendEffect : function(){
+            console.log(typeof this.effectProperties);
+            this.$.ajax.body = this.effectProperties;
+            this.$.ajax.method = 'POST';
+            this.$.ajax.generateRequest();
+
+        },
+
+
+
+
+      });
+    </script>
+
+
+
+</dom-module>

@@ -1,72 +1,144 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
-<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<dom-module id="luminous-rainbow">
+    <template>
 
-<link rel="import" href="../../bower_components/neon-animation/neon-animatable-behavior.html">
-<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
-<link rel="import" href="../../bower_components/neon-animation/animations/slide-right-animation.html">
-
-
-<dom-module id="settings-page">
-
-  <style>
-    :host {
-      display: block;
-      font-family: 'Roboto', sans-serif;
-    }
-    .container {
-      background: white;
-    }
-    .content {
-      padding: 56px;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-    .row {
-      margin: 56px 0;
-    }
-    label {
-      font-size: 18px;
-    }
-  </style>
-
-  <template>
-
-      <div class="container">
-        <div class="content">
-          <div class="row">
-          </div>
-        </div>
-      </div>
-  </template>
-
-  <script>
-    Polymer({
-      is: 'settings-page',
-      behaviors: [Polymer.NeonAnimatableBehavior],
-      properties: {
-        animationConfig: {
-          value: function() {
-            return {
-              'entry': {
-                name: 'slide-from-right-animation',
-                node: this
-              },
-              'exit': {
-                name: 'slide-right-animation',
-                node: this
-              }
+        <style>
+            :host {
+                display: inline-block;
+                position: relative;
             }
-          }
-        }
-      },
-      showList: function() {
-        this.fire('show-list');
-      }
-    });
-  </script>
+            paper-color-circle {
+                width: 200px;
+                height: 200px;
+            }
+            .flexchild {
+                @apply(--layout-flex);
+            }
+            .rainbow {
+                background-image: repeating-linear-gradient(to bottom right, rgb(0, 165, 223) 0%, rgb(62, 20, 123) 20%, rgb(226, 0, 121) 40%, rgb(223, 19, 44) 60%, rgb(243, 239, 21) 80%, rgb(0, 152, 71) 100%);
+                color: white;
+                width: 80px;
+            }
+            .color-button {
+                background-color: var(--paper-cyan-500);
+                color: white;
+                --paper-button-raised-keyboard-focus: {
+                    background-color: var(--paper-red-a200) !important;
+                    color: white !important;
+                };
+            }
+
+
+        </style>
+        <template is="dom-if" if="{{!showSettings}}">
+
+            <paper-button id="rainbow-selection-button" class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised>Rainbow</paper-button>
+
+        </template>
+
+        <iron-ajax id="ajax" 
+            url="{{_computeEffectUrl(deviceurl, effectName)}}" 
+            eaders: '{"content-type": "application/x-www-form-urlencoded"}' 
+            content-type="application/x-www-form-urlencoded" 
+            handle-as="json" 
+            on-response="handleEffectResponse" 
+            debounce-duration="1000">
+        </iron-ajax>
+
+        <template is="dom-if" if="{{showSettings}}">
+            <div class="flexchild">
+                <paper-button class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised id="rainbow">Rainbow</paper-button>
+                <p>Refresh Rate</p>
+                <paper-slider max-markers="20" step="5" max="100" value=""></paper-slider>
+            </div>
+        </template>
+
+
+
+    </template>
+
+
+
+
+    <script>
+        Polymer({
+            is: 'luminous-rainbow',
+
+
+            properties: {
+
+                effectproperties: {
+                    type: Object,
+                    notify: true,
+                    value: {
+                        refreshrate: 20
+                    }
+                },
+
+
+                effectName: {
+                    type: String,
+                    readOnly: true,
+                    value: 'rainbow'
+                },
+
+                /**
+                 *The state of the light strip
+                 **/
+                stripState: {
+                    type: Object,
+                    notify: true
+                },
+
+
+                /**
+                 *The device url and port number
+                 **/
+                deviceurl: {
+                    type: String
+                },
+
+                showSettings: {
+                    type: Boolean,
+                    value: false
+                }
+
+
+            },
+
+            observers: [
+
+
+            ],
+
+            ready: function() {
+
+
+            },
+
+            sendBrightness: function(brightness) {},
+
+            _computeEffectUrl: function(url, effectName) {
+
+                return [url, 'api', 'effects', effectName].join('/');
+            },
+
+            handleEffectResponse: function(data) {
+                //this.cardInitialized = true;
+                this.stripState = data.detail.response.stripState;
+
+            },
+
+            sendEffect: function() {
+                this.$.ajax.body = this.effectProperties;
+                this.$.ajax.method = 'POST';
+                this.$.ajax.generateRequest();
+                this.fire("goToSettings");
+
+            }
+
+        });
+    </script>
+
+
 
 </dom-module>
