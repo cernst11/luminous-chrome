@@ -34,18 +34,18 @@
     </style>
 
       
-      <paper-button id="rotate-selection-button" class="paper-font-body1"
-                  on-tap="sendEffect" data-args="rotate" raised>Rotate</paper-button>
+    <paper-button id="rotate-selection-button" class="paper-font-body1"
+                on-tap="sendEffect" data-args="rotate" raised>Rotate</paper-button>
 
 
-      <iron-ajax id="ajax"   
-          url="{{_computeEffectUrl(deviceurl, effectName)}}" 
-          headers:'{"content-type": "application/x-www-form-urlencoded"}' 
-          content-type="application/x-www-form-urlencoded" 
-          handle-as="json" 
-          on-response="handleEffectResponse"
-          debounce-duration="1000">
-      </iron-ajax>
+    <iron-ajax id="ajax"   
+        url="{{_computeEffectUrl(deviceurl, effectName)}}" 
+        headers:'{"content-type": "application/x-www-form-urlencoded"}' 
+        content-type="application/x-www-form-urlencoded" 
+        handle-as="json" 
+        on-response="handleEffectResponse"
+        debounce-duration="1000">
+    </iron-ajax>
 
   </template>
 

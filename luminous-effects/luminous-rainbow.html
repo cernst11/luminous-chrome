@@ -12,6 +12,8 @@
             }
             .flexchild {
                 @apply(--layout-flex);
+                flex-direction: row;
+
             }
             .rainbow {
                 background-image: repeating-linear-gradient(to bottom right, rgb(0, 165, 223) 0%, rgb(62, 20, 123) 20%, rgb(226, 0, 121) 40%, rgb(223, 19, 44) 60%, rgb(243, 239, 21) 80%, rgb(0, 152, 71) 100%);
@@ -27,6 +29,18 @@
                 };
             }
 
+            .settings-container{
+                text-align: left;
+            }
+
+            #activate-settings{
+                margin-bottom: 10px;
+            }
+
+            .slider-container{
+                padding-left: 5px;
+            }
+
 
         </style>
         <template is="dom-if" if="{{!showSettings}}">
@@ -37,7 +51,7 @@
 
         <iron-ajax id="ajax" 
             url="{{_computeEffectUrl(deviceurl, effectName)}}" 
-            eaders: '{"content-type": "application/x-www-form-urlencoded"}' 
+            headers: '{"content-type": "application/x-www-form-urlencoded"}' 
             content-type="application/x-www-form-urlencoded" 
             handle-as="json" 
             on-response="handleEffectResponse" 
@@ -45,32 +59,27 @@
         </iron-ajax>
 
         <template is="dom-if" if="{{showSettings}}">
-            <div class="flexchild">
-                <paper-button class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised id="rainbow">Rainbow</paper-button>
-                <p>Refresh Rate</p>
-                <paper-slider max-markers="20" step="5" max="100" value=""></paper-slider>
+            <div class="settings-container">
+                <paper-button id="activate-settings" class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised id="rainbow">Rainbow</paper-button>
+                <div class="slider-container">
+                    <label>Speed</label>
+                    <paper-slider max-markers="20" step="5" max="200" value="{{effectProperties.refresh}}"></paper-slider>
+                </div>
             </div>
         </template>
-
-
-
     </template>
-
-
-
 
     <script>
         Polymer({
             is: 'luminous-rainbow',
 
-
             properties: {
 
-                effectproperties: {
+                effectProperties: {
                     type: Object,
                     notify: true,
                     value: {
-                        refreshrate: 20
+                        refresh: 20
                     }
                 },
 
@@ -130,9 +139,10 @@
 
             sendEffect: function() {
                 this.$.ajax.body = this.effectProperties;
+                console.log( this.$.ajax.body);
                 this.$.ajax.method = 'POST';
                 this.$.ajax.generateRequest();
-                this.fire("goToSettings");
+                this.fire('goToSettings', {settings : 'rainbow'});
 
             }
 

@@ -241,12 +241,13 @@ The interface for luminous led strip controller
                 </div>
               </neon-animatable>
               <neon-animatable data-page="settings" id=settings-container class="expand-container">
-                <div class="flexchild">
-
-
+                <div class="">
+                  <template is="dom-if" if="{{_isSettingToShow(selectedSettingsView, 'rainbow')}}">     
+                      <luminous-rainbow class="" show-settings="true" deviceurl="[[deviceurl]]" strip-state="{{stripState}}"></luminous-rainbow>
+                  </template>
+                  <template is="dom-if" if="{{_isSettingToShow(selectedSettingsView, 'rotate')}}">     
                       <luminous-rainbow class="effect-button" show-settings="true" deviceurl="[[deviceurl]]" strip-state="{{stripState}}"></luminous-rainbow>
-
-         
+                  </template>
                 </div>
               </neon-animatable>
               <!--Scenes  -->
@@ -300,7 +301,7 @@ The interface for luminous led strip controller
       ],
 
       listeners: {
-        "goToSettings": "_goToPage"
+        "goToSettings": "_goToSettingsPage"
       },
 
       properties: {
@@ -437,8 +438,7 @@ The interface for luminous led strip controller
         }, 
 
         selectedSettingsView:{
-            type: String,
-            
+            type: String
         }
 
 
@@ -542,8 +542,22 @@ The interface for luminous led strip controller
         this.entryAnimation = 'slide-from-right-animation';
         this.exitAnimation = 'fade-out-animation';
         this.selected = "settings";
-
       },
+
+      _goToSettingsPage : function(e){
+        console.log(e);
+        this.entryAnimation = 'slide-from-right-animation';
+        this.exitAnimation = 'fade-out-animation';
+        this.selectedSettingsView = e.detail.settings;
+        this.selected = "settings";
+  
+      },
+
+
+      _isSettingToShow : function (setting, settingToCompare){
+          return (setting === settingToCompare);
+      },
+
 
       /**
       * Send a color in format 0x000000
