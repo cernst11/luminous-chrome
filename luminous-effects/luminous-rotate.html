@@ -33,9 +33,10 @@
 
     </style>
 
-      
-    <paper-button id="rotate-selection-button" class="paper-font-body1"
-                on-tap="sendEffect" data-args="rotate" raised>Rotate</paper-button>
+    <template is="dom-if" if="{{!showSettings}}">
+      <paper-button id="rotate-selection-button" class="paper-font-body1"
+              on-tap="sendEffect" data-args="rotate" raised>Rotate</paper-button>
+    </template>
 
 
     <iron-ajax id="ajax"   
@@ -46,6 +47,21 @@
         on-response="handleEffectResponse"
         debounce-duration="1000">
     </iron-ajax>
+
+    <template is="dom-if" if="{{showSettings}}">
+      <div class="settings-container">
+        <paper-button id="rotate-selection-button" class="paper-font-body1" on-tap="sendEffect" data-args="rotate" raised>Rotate</paper-button>          
+        <div class="slider-container">
+              <label>Speed</label>
+              <paper-slider max-markers="20" step="5" max="200" value="{{effectProperties.refresh}}"></paper-slider>
+          </div>
+          <div class="color-container">
+              <label>Speed</label>
+              <paper-slider max-markers="20" step="5" max="200" value="{{effectProperties.refresh}}"></paper-slider>
+          </div>
+      </div>
+    </template>
+
 
   </template>
 

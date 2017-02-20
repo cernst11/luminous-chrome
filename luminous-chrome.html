@@ -301,7 +301,8 @@ The interface for luminous led strip controller
       ],
 
       listeners: {
-        "goToSettings": "_goToSettingsPage"
+        "goToSettings": "_goToSettingsPage",
+        "sendEffect" : "sendEffect"
       },
 
       properties: {
@@ -588,30 +589,15 @@ The interface for luminous led strip controller
       /**
       * Send an effect
       */
-      sendEffect: function(properties) {
-        var args = properties.target.getAttribute('data-args').split(',');
-        this.$.ajax.url = [this.deviceurl, 'api', 'effects', args[0]].join('/');
-
-        console.log(this.$.ajax.url );
-        if (args[0] === 'rainbow') {
-          this.$.ajax.body = {
-            'effect': 'rainbow',
-            'refresh': 100 - this.rainbow.properties.refresh
-          };
-
-
-        } else {
-          this.$.ajax.body = {
-            'refresh': this.refreshRate
-          };
-
-        }
+      sendEffect: function(e) {
+        console.log(e);
+        this.$.ajax.url =  this._computeEffectUrl(this.deviceurl, e.detail.effectName);
         this.$.ajax.method = 'POST';
+        this.$.ajax.body = e.detail.effectProperties;
+        this.selectedSettingsView = e.detail.effectProperties;
         this.$.ajax.generateRequest();
 
       },
-
-      
       /**
       * Send an scene
       */
@@ -683,11 +669,12 @@ The interface for luminous led strip controller
 
 
       stripStateChanged : function(stripState){
-        console.log("Strip changed in luminous chrome");
+       
+      }, 
+      _computeEffectUrl: function(url, effectName) {
 
+          return [url, 'api', 'effects', effectName].join('/');
       }
-
-
     });
   </script>
 </dom-module>

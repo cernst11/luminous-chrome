@@ -45,7 +45,7 @@
         </style>
         <template is="dom-if" if="{{!showSettings}}">
 
-            <paper-button id="rainbow-selection-button" class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised>Rainbow</paper-button>
+            <paper-button id="rainbow-selection-button" on-down="_pntrDown" on-up="clearEventTimeout" class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised>Rainbow</paper-button>
 
         </template>
 
@@ -109,6 +109,10 @@
                 showSettings: {
                     type: Boolean,
                     value: false
+                }, 
+
+                timer :{
+                    type: Object
                 }
 
 
@@ -134,17 +138,28 @@
             handleEffectResponse: function(data) {
                 //this.cardInitialized = true;
                 this.stripState = data.detail.response.stripState;
-
+                
             },
 
             sendEffect: function() {
-                this.$.ajax.body = this.effectProperties;
+          /*      this.$.ajax.body = this.effectProperties;
                 console.log( this.$.ajax.body);
                 this.$.ajax.method = 'POST';
                 this.$.ajax.generateRequest();
-                this.fire('goToSettings', {settings : 'rainbow'});
+                */
+                this.fire('sendEffect', {properties : this.effectProperties, effectName : 'rainbow'});
 
-            }
+            }, 
+
+            _pntrDown: function(index) {
+                let that = this;
+                timer = setTimeout(function() {
+                    that.fire('goToSettings', {settings : 'rainbow'});
+                }, 1000);
+            }, 
+            clearEventTimeout: function() {
+                clearTimeout(timer);
+            },
 
         });
     </script>
