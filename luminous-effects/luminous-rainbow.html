@@ -1,168 +1,167 @@
 <dom-module id="luminous-rainbow">
-    <template>
+  <template>
 
-        <style>
-            :host {
-                display: inline-block;
-                position: relative;
-            }
-            paper-color-circle {
-                width: 200px;
-                height: 200px;
-            }
-            .flexchild {
-                @apply(--layout-flex);
-                flex-direction: row;
+    <style>
+       :host {
+        display: inline-block;
+        position: relative;
+      }
+      
+      paper-color-circle {
+        width: 200px;
+        height: 200px;
+      }
+      
+      .flexchild {
+        @apply(--layout-flex);
+        flex-direction: row;
+      }
+      
+      .rainbow {
+        background-image: repeating-linear-gradient(to bottom right, rgb(0, 165, 223) 0%, rgb(62, 20, 123) 20%, rgb(226, 0, 121) 40%, rgb(223, 19, 44) 60%, rgb(243, 239, 21) 80%, rgb(0, 152, 71) 100%);
+        color: white;
+        width: 80px;
+      }
+      
+      .color-button {
+        background-color: var(--paper-cyan-500);
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+          background-color: var(--paper-red-a200) !important;
+          color: white !important;
+        }
+        ;
+      }
+      
+      .settings-container {
+        text-align: left;
+      }
+      
+      #activate-settings {
+        margin-bottom: 10px;
+      }
+      
+      .slider-container {
+        padding-left: 5px;
+      }
 
-            }
-            .rainbow {
-                background-image: repeating-linear-gradient(to bottom right, rgb(0, 165, 223) 0%, rgb(62, 20, 123) 20%, rgb(226, 0, 121) 40%, rgb(223, 19, 44) 60%, rgb(243, 239, 21) 80%, rgb(0, 152, 71) 100%);
-                color: white;
-                width: 80px;
-            }
-            .color-button {
-                background-color: var(--paper-cyan-500);
-                color: white;
-                --paper-button-raised-keyboard-focus: {
-                    background-color: var(--paper-red-a200) !important;
-                    color: white !important;
-                };
-            }
+    </style>
+    <template is="dom-if" if="{{!showSettings}}">
 
-            .settings-container{
-                text-align: left;
-            }
+      <paper-button id="rainbow-selection-button" on-down="_pntrDown" on-up="clearEventTimeout" class="paper-font-body1 rainbow"
+        on-tap="sendEffect" data-args="rainbow" raised>Rainbow</paper-button>
 
-            #activate-settings{
-                margin-bottom: 10px;
-            }
-
-            .slider-container{
-                padding-left: 5px;
-            }
-
-
-        </style>
-        <template is="dom-if" if="{{!showSettings}}">
-
-            <paper-button id="rainbow-selection-button" on-down="_pntrDown" on-up="clearEventTimeout" class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised>Rainbow</paper-button>
-
-        </template>
-
-        <iron-ajax id="ajax" 
-            url="{{_computeEffectUrl(deviceurl, effectName)}}" 
-            headers: '{"content-type": "application/x-www-form-urlencoded"}' 
-            content-type="application/x-www-form-urlencoded" 
-            handle-as="json" 
-            on-response="handleEffectResponse" 
-            debounce-duration="1000">
-        </iron-ajax>
-
-        <template is="dom-if" if="{{showSettings}}">
-            <div class="settings-container">
-                <paper-button id="activate-settings" class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised id="rainbow">Rainbow</paper-button>
-                <div class="slider-container">
-                    <label>Speed</label>
-                    <paper-slider max-markers="20" step="5" max="200" value="{{effectProperties.refresh}}"></paper-slider>
-                </div>
-            </div>
-        </template>
     </template>
 
-    <script>
-        Polymer({
-            is: 'luminous-rainbow',
 
-            properties: {
+    <template is="dom-if" if="{{showSettings}}">
+      <div class="settings-container">
+        <paper-button id="activate-settings" class="paper-font-body1 rainbow" on-tap="sendEffect" data-args="rainbow" raised id="rainbow">Rainbow</paper-button>
+        <div class="slider-container">
+          <label>Speed</label>
+          <paper-slider max-markers="20" step="5" max="200" value="{{refresh}}"></paper-slider>
+        </div>
+      </div>
+    </template>
+  </template>
 
-                effectProperties: {
-                    type: Object,
-                    notify: true,
-                    value: {
-                        refresh: 20
-                    }
-                },
+  <script>
+    Polymer({
+      is: 'luminous-rainbow',
 
+      properties: {
 
-                effectName: {
-                    type: String,
-                    readOnly: true,
-                    value: 'rainbow'
-                },
-
-                /**
-                 *The state of the light strip
-                 **/
-                stripState: {
-                    type: Object,
-                    notify: true
-                },
+        effectProperties: {
+          type: Object,
+          notify: true,
+          value: {
+            refresh: 20
+          }
+        },
 
 
-                /**
-                 *The device url and port number
-                 **/
-                deviceurl: {
-                    type: String
-                },
+        effectName: {
+          type: String,
+          readOnly: true,
+          value: 'rainbow'
+        },
 
-                showSettings: {
-                    type: Boolean,
-                    value: false
-                }, 
+        /**
+         *The state of the light strip
+         **/
+        stripState: {
+          type: Object,
+          notify: true
+        },
 
-                timer :{
-                    type: Object
-                }
+        showSettings: {
+          type: Boolean,
+          value: false
+        },
+
+        timer: {
+          type: Object
+        },
+
+        refesh: {
+          type: Number
+        }
 
 
-            },
 
-            observers: [
+      },
+
+      observers: [
+        '_calculateRefeshRate(refresh)'
+      ],
+
+      ready: function () {
 
 
-            ],
+      },
 
-            ready: function() {
+      _computeEffectUrl: function (url, effectName) {
 
+        return [url, 'api', 'effects', effectName].join('/');
+      },
 
-            },
+      handleEffectResponse: function (data) {
+        //this.cardInitialized = true;
+        this.stripState = data.detail.response.stripState;
 
-            sendBrightness: function(brightness) {},
+      },
 
-            _computeEffectUrl: function(url, effectName) {
-
-                return [url, 'api', 'effects', effectName].join('/');
-            },
-
-            handleEffectResponse: function(data) {
-                //this.cardInitialized = true;
-                this.stripState = data.detail.response.stripState;
-                
-            },
-
-            sendEffect: function() {
-          /*      this.$.ajax.body = this.effectProperties;
-                console.log( this.$.ajax.body);
-                this.$.ajax.method = 'POST';
-                this.$.ajax.generateRequest();
-                */
-                this.fire('sendEffect', {properties : this.effectProperties, effectName : 'rainbow'});
-
-            }, 
-
-            _pntrDown: function(index) {
-                let that = this;
-                timer = setTimeout(function() {
-                    that.fire('goToSettings', {settings : 'rainbow'});
-                }, 1000);
-            }, 
-            clearEventTimeout: function() {
-                clearTimeout(timer);
-            },
-
+      sendEffect: function () {
+        this.fire('sendEffect', {
+          effectProperties: this.effectProperties,
+          effectName: 'rainbow'
         });
-    </script>
+
+      },
+
+      _pntrDown: function (index) {
+        let that = this;
+        timer = setTimeout(function () {
+          that.fire('goToSettings', {
+            settings: 'rainbow'
+          });
+        }, 1000);
+      },
+      clearEventTimeout: function () {
+        clearTimeout(timer);
+      },
+
+      _calculateRefeshRate(speed) {
+        console.log(speed);
+        let calculatedSpeed = Math.min(Math.max(parseInt(200 - speed), 1), 200)
+        console.log(typeof calculatedSpeed + ' ' + calculatedSpeed)
+        this.effectProperties.refresh = calculatedSpeed;
+        // console.log(this.effectProperties.refresh);
+      }
+
+    });
+
+  </script>
 
 
 

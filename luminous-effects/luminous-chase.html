@@ -1,129 +1,164 @@
 <dom-module id="luminous-chase">
   <template>
     <style>
-      :host {
+       :host {
         display: inline-block;
         position: relative;
-
       }
+      
       paper-color-circle {
         width: 200px;
         height: 200px;
       }
-
-     .flexchild {
+      
+      .flexchild {
         @apply(--layout-flex);
       }
-
-
-     .color-button{
+      
+      .color-button {
         background-color: var(--paper-cyan-500);
         color: white;
         --paper-button-raised-keyboard-focus: {
           background-color: var(--paper-red-a200) !important;
           color: white !important;
-        };
-     }
-
-    #chase-selection-button{
+        }
+        ;
+      }
+      
+      #chase-selection-button {
         background-color: #FF1744;
-        color : white;
-         width:80px;
-    }     
+        color: white;
+        width: 80px;
+      }
 
     </style>
 
-      
-      <paper-button id="chase-selection-button" class="paper-font-body1"
-                  on-tap="sendEffect" data-args="rotate" raised>Chase</paper-button>
+    <template is="dom-if" if="{{!showSettings}}">
+      <paper-button id="chase-selection-button" on-down="_pntrDown" on-up="clearEventTimeout"  class="paper-font-body1" on-tap="sendEffect" data-args="rotate" raised>Chase</paper-button>
+    </template>
 
-
-      <iron-ajax id="ajax"   
-          url="{{_computeEffectUrl(deviceurl, effectName)}}" 
-          headers:'{"content-type": "application/x-www-form-urlencoded"}' 
-          content-type="application/x-www-form-urlencoded" 
-          handle-as="json" 
-          on-response="handleEffectResponse"
-          debounce-duration="1000">
-      </iron-ajax>
+    <template is="dom-if" if="{{showSettings}}">
+      <div class="settings-container">
+        <paper-button id="activate-settings" class="paper-font-body1 rainbow" on-tap="sendEffect"  raised id="rainbow">Chase</paper-button>
+        <div class="slider-container">
+          <label>Speed</label>
+          <paper-slider max-markers="20" step="5" max="200" value="{{refresh}}"></paper-slider>
+        </div>
+        <div class="slider-container">
+          <label>Number of LED's Lit</label>
+          <paper-slider max-markers="60" pin step="1" max="60" value="{{effectProperties.lit}}"></paper-slider>
+        </div>
+      </div>
+    </template>
+  </template>
 
   </template>
 
 
-    <script>
-      Polymer({
-        is: 'luminous-chase',
+  <script>
+    Polymer({
+      is: 'luminous-chase',
 
 
-        properties: {
+      properties: {
 
-          effectProperties: {
-            type: Object,
-            notify : true, 
-            value:{
-                refresh: 20
-            }
-          },
-
-
-          effectName: {
-            type: String,
-            readOnly: true,
-            value : 'theaterChase'
-          }, 
-          
-          /**
-          *The state of the light strip
-          **/
-          stripState:{
-              type: Object,
-              notify : true
-          },
-
-
-          /**
-          *The device url and port number
-          **/
-          deviceurl: {
-            type: String
+        effectProperties: {
+          type: Object,
+          notify: true,
+          value: {
+            refresh: 50,
+            color: '0xFF00FF',
+            lit: 15
           }
-          
-
         },
 
-        observers: [
 
-
-        ],
-
-        ready : function() {
-          
-
+        effectName: {
+          type: String,
+          readOnly: true,
+          value: 'theaterChase'
         },
 
-        sendBrightness : function (brightness){
+        /**
+         *The state of the light strip
+         **/
+        stripState: {
+          type: Object,
+          notify: true
         },
 
-        _computeEffectUrl : function (url, effectName){
 
-            return [url , 'api', 'effects' , effectName].join('/');
-        }, 
+        showSettings: {
+          type: Boolean,
+          value: false
+        },
 
-        handleEffectResponse : function (data){
-            //this.cardInitialized = true;
-            this.stripState = data.detail.response.stripState ;
 
-        }, 
+        /**
+         *The device url and port number
+         **/
+        deviceurl: {
+          type: String
+        },
 
-        sendEffect : function(){
-            this.$.ajax.body = this.effectProperties;
-            this.$.ajax.method = 'POST';
-            this.$.ajax.generateRequest();
-
+        refresh: {
+          type: Number
         }
 
-      });
-    </script>
+      },
+
+      observers: [
+
+            '_calculateRefeshRate(refresh)'
+      ],
+
+      ready: function () {
+        
+
+      },
+
+      _computeEffectUrl: function (url, effectName) {
+
+        return [url, 'api', 'effects', effectName].join('/');
+      },
+
+      handleEffectResponse: function (data) {
+        //this.cardInitialized = true;
+        this.stripState = data.detail.response.stripState;
+
+      },
+
+      sendEffect: function () {
+        this.fire('sendEffect', {
+          effectProperties: this.effectProperties,
+          effectName: 'theaterChase'
+        });
+
+      },
+
+      _pntrDown: function (index) {
+        let that = this;
+        timer = setTimeout(function () {
+          that.fire('goToSettings', {
+            settings: 'theaterChase'
+          });
+        }, 1000);
+      },
+      clearEventTimeout: function () {
+        clearTimeout(timer);
+      },
+
+      _calculateRefeshRate(speed) {
+        console.log(speed);
+        let calculatedSpeed = Math.min(Math.max(parseInt(200 - speed), 1), 200)
+        console.log(typeof calculatedSpeed + ' ' + calculatedSpeed)
+        this.effectProperties.refresh = calculatedSpeed;
+        // console.log(this.effectProperties.refresh);
+      }
+
+    });
+
+  </script>
 
 
 

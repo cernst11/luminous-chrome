@@ -244,9 +244,12 @@ The interface for luminous led strip controller
                 <div class="">
                   <template is="dom-if" if="{{_isSettingToShow(selectedSettingsView, 'rainbow')}}">     
                       <luminous-rainbow class="" show-settings="true" deviceurl="[[deviceurl]]" strip-state="{{stripState}}"></luminous-rainbow>
+                  </template>       
+                  <template is="dom-if" if="{{_isSettingToShow(selectedSettingsView, 'theaterChase')}}">     
+                      <luminous-chase class="" show-settings="true" deviceurl="[[deviceurl]]" strip-state="{{stripState}}"></luminous-rainbow>
                   </template>
                   <template is="dom-if" if="{{_isSettingToShow(selectedSettingsView, 'rotate')}}">     
-                      <luminous-rainbow class="effect-button" show-settings="true" deviceurl="[[deviceurl]]" strip-state="{{stripState}}"></luminous-rainbow>
+                      <luminous-rotate class="effect-button" show-settings="true" deviceurl="[[deviceurl]]" strip-state="{{stripState}}"></luminous-rotate>
                   </template>
                 </div>
               </neon-animatable>
@@ -290,7 +293,6 @@ The interface for luminous led strip controller
         on-response="handleResponse" 
         debounce-duration="1000">
     </iron-ajax>
-    
   </template>
   <script>
     Polymer({
@@ -407,7 +409,7 @@ The interface for luminous led strip controller
         /**
          * The body of the ajax response
          */
-        ajaxBody:{
+        _ajaxBody:{
           type: Object,
           notify : true
         },
@@ -594,7 +596,7 @@ The interface for luminous led strip controller
         this.$.ajax.url =  this._computeEffectUrl(this.deviceurl, e.detail.effectName);
         this.$.ajax.method = 'POST';
         this.$.ajax.body = e.detail.effectProperties;
-        this.selectedSettingsView = e.detail.effectProperties;
+        //this.selectedSettingsView = e.detail.effectProperties;
         this.$.ajax.generateRequest();
 
       },
@@ -613,6 +615,9 @@ The interface for luminous led strip controller
 
       },
 
+      /**
+      * Format the current status name
+      */
       _formatStatus : function(statusName) {
         statusName = statusName.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
           return str.toUpperCase();
